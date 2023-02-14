@@ -1,28 +1,14 @@
+import 'package:codigo6_quiz/pages/quiz_brain.dart';
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
-class HomePage extends StatefulWidget{
-
+class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  List<String> questions = [
-    "¿He dormido 8 horas?",
-    "¿La Tierra es plana?",
-    "¿Taiwan es un país?",
-    "¿El hombre fue a la Luna?",
-    "¿He almorzado hoy?",
-  ];
-
-
-  List<Widget> scoreKeeper = [
-    Icon(
-      Icons.check,
-      color: Color(0xff06d6a0),
-      size: 30.0,
-    ),
-  ];
+  late QuizBrain quizBrain = QuizBrain();
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +24,7 @@ class _HomePageState extends State<HomePage> {
               child: Padding(
                 padding: const EdgeInsets.all(6.0),
                 child: Text(
-                  questions[0],
+                  quizBrain.getQuestionText(),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Colors.white,
@@ -52,37 +38,51 @@ class _HomePageState extends State<HomePage> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: MaterialButton(
-                  onPressed: (){
-                    scoreKeeper.add(
-                      const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                      )
-                    );
-
-                    setState(() { });
+                  onPressed: () {
+                    quizBrain.verifyAnswer(context, true);
+                    setState(() {});
                   },
                   color: const Color(0xff06d6a0),
-                  child: const Text(
-                      "Verdadero"
-                  )
-              ),
+                  child: const Text("Verdadero")),
             ),
           ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: MaterialButton(
-                  onPressed: (){},
+                  onPressed: () {
+                    if (quizBrain.isFinished()) {
+                      Alert(
+                          context: context,
+                          type: AlertType.success,
+                          title: "El quiz finalizó!",
+                          desc: "Quieres iniciar nuevamente",
+                          buttons: [
+                            DialogButton(
+                              child: Text(
+                                "Reiniciar",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              ),
+                              onPressed: () {
+                                quizBrain.restart();
+                                Navigator.pop(context);
+                                setState(() {});
+                              },
+                              width: 120,
+                            )
+                          ]).show();
+                    } else {
+                      quizBrain.verifyAnswer(context, false);
+                    }
+                    setState(() {});
+                  },
                   color: const Color(0xffef476f),
-                  child: const Text(
-                      "Falso"
-                  )
-              ),
+                  child: const Text("Falso")),
             ),
           ),
           Row(
-            children: scoreKeeper,
+            children: quizBrain.scoreKeeper,
           )
         ],
       ),
